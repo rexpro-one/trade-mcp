@@ -1,9 +1,12 @@
-# 📈 AI Trading Intelligence Framework — MCP Server
+# TradingView MCP — Market Data & Technical Analysis for AI Assistants
 
 <a href="https://trendshift.io/repositories/25110" target="_blank"><img src="https://trendshift.io/api/badge/repositories/25110" alt="atilaahmettaner%2Ftradingview-mcp | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
-**The most complete AI-powered trading toolkit for Claude and MCP clients.**
-Backtesting + Live Sentiment + Yahoo Finance + 30+ Technical Analysis Tools — all in one MCP server.
+**TradingView MCP server** — real-time market data, technical indicators, screeners, and backtesting for Claude, ChatGPT, Cursor, Copilot, and any MCP client. Stocks, crypto, forex & futures across global exchanges.
+Backtesting + live sentiment + Yahoo Finance + 30+ technical-analysis tools — the most complete TradingView MCP toolkit, all in one server.
+
+> [!NOTE]
+> Independent open-source project — **not affiliated with, endorsed by, or associated with TradingView Inc.** "TradingView" is a trademark of its respective owner; this project consumes third-party market data and is not a TradingView product.
 
 > [!IMPORTANT]
 > **Not financial advice.** Nothing produced by this software is investment, financial, legal, tax, or accounting advice. tradingview-mcp is an informational and educational analysis tool. Its outputs, including indicators, scores, signals, "trade setups", entries, stop losses, and targets, are computed from third party market data and are **not** recommendations to buy, sell, or hold any asset. It does not execute trades, manage money, or guarantee any result. Trading and investing carry a substantial risk of loss, and you can lose some or all of your capital. Always do your own research and consult a licensed professional before making any financial decision. You are solely responsible for your own decisions and for complying with the laws and regulations that apply to you. Market data may be delayed, inaccurate, or incomplete, and is provided without warranty.
