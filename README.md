@@ -5,6 +5,10 @@
 **TradingView MCP server** — real-time market data, technical indicators, screeners, and backtesting for Claude, ChatGPT, Cursor, Copilot, and any MCP client. Stocks, crypto, forex & futures across global exchanges.
 Backtesting + live sentiment + Yahoo Finance + 30+ technical-analysis tools — the most complete TradingView MCP toolkit, all in one server.
 
+<p align="center">
+  <img src=".github/assets/tradingview-mcp-demo.gif" width="760" alt="TradingView MCP demo — ask your AI for top gainers on Binance and get ranked, real-time results across 30+ tools" />
+</p>
+
 > [!NOTE]
 > Independent open-source project — **not affiliated with, endorsed by, or associated with TradingView Inc.** "TradingView" is a trademark of its respective owner; this project consumes third-party market data and is not a TradingView product.
 
