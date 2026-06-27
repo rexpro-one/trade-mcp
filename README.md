@@ -16,7 +16,7 @@ Backtesting + live sentiment + Yahoo Finance + 30+ technical-analysis tools — 
 > **Not financial advice.** Nothing produced by this software is investment, financial, legal, tax, or accounting advice. tradingview-mcp is an informational and educational analysis tool. Its outputs, including indicators, scores, signals, "trade setups", entries, stop losses, and targets, are computed from third party market data and are **not** recommendations to buy, sell, or hold any asset. It does not execute trades, manage money, or guarantee any result. Trading and investing carry a substantial risk of loss, and you can lose some or all of your capital. Always do your own research and consult a licensed professional before making any financial decision. You are solely responsible for your own decisions and for complying with the laws and regulations that apply to you. Market data may be delayed, inaccurate, or incomplete, and is provided without warranty.
 
 > [!TIP]
-> **Skip the setup. Use the hosted version.** [**pro.cryptosieve.com**](https://pro.cryptosieve.com) gives you all 30+ tools as one connector URL for Claude.ai, ChatGPT, Copilot, and Cursor. No `uv`, `pandas`, or Python to wrangle. **$9 per month, with a 3 day free trial.** Self hosting stays free forever; the hosted plan is just for folks who would rather skip the ops.
+> **Prefer zero setup? Use the hosted version.** [**pro.cryptosieve.com**](https://pro.cryptosieve.com) serves all 30+ tools as one connector URL for Claude.ai, ChatGPT, Copilot, and Cursor — no `uv`, `pandas`, or Python to wrangle. **From $9/mo (Pro) or $29/mo (Pro+ — higher limits), with a 3-day free trial.** Self-hosting stays free forever; hosted is just for folks who'd rather skip the ops. *(Full self-host vs hosted comparison in Quick Start below.)*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -80,6 +80,19 @@ https://github-production-user-asset-6210df.s3.amazonaws.com/67838093/478689497-
 ---
 
 ## 🚀 Quick Start (5 Minutes)
+
+**Two ways to run it — the same 30+ tools either way:**
+
+| | 🧑‍💻 Self-host (this repo) | ☁️ Hosted — [pro.cryptosieve.com](https://pro.cryptosieve.com) |
+|---|---|---|
+| **Price** | Free forever (MIT) | $9/mo Pro · $29/mo Pro+ · 3-day trial |
+| **Time to first call** | ~5 minutes (Python + `uv`) | ~60 seconds (paste one URL) |
+| **Updates & ops** | You run and update it | Managed — always on the latest |
+| **Runs on** | Your machine or VPS | Hosted, streamed from the edge |
+| **Limits** | Your hardware | 2,500/mo · 60/min (Pro) → 10,000/mo · 150/min (Pro+) |
+| **Best for** | Tinkerers, forkers, full control | Folks who'd rather skip the ops |
+
+> ☁️ **Zero setup:** paste one connector URL into Claude.ai, ChatGPT, Copilot, or Cursor → **[start a 3-day free trial](https://pro.cryptosieve.com)**. Everything below is for self-hosting.
 
 ### Install via pip
 ```bash
