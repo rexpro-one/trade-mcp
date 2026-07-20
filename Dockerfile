@@ -33,7 +33,7 @@ import starlette.responses
 from starlette.routing import Route
 from tradingview_mcp.server import mcp
 
-app = mcp.streamable_http_app
+app = mcp.streamable_http_app()
 
 async def health(req):
     return starlette.responses.JSONResponse({"status": "ok"})
