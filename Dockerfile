@@ -18,14 +18,24 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin/tradingview-mcp /usr/local/bin/tradingview-mcp
 COPY --from=builder /app /app
 
-# Entrypoint script: Gunakan mcp.run() bawaan FastMCP dengan mode SSE
+# Entrypoint script: Ambil app ASGI murni bawaan FastMCP
 RUN cat << 'EOF' > /app/entrypoint.py
-import os
+import uvicorn
+import starlette.responses
+from starlette.routing import Route
 from tradingview_mcp.server import mcp
 
+# Mengambil aplikasi Starlette SSE native milik FastMCP
+app = mcp.sse_app()
+
+async def health(req):
+    return starlette.responses.JSONResponse({"status": "ok"})
+
+# Tambahkan endpoint health untuk Docker / Easypanel
+app.routes.append(Route("/health", endpoint=health, methods=["GET"]))
+
 if __name__ == "__main__":
-    # Menjalankan FastMCP HTTP/SSE server resmi
-    mcp.run(transport="sse", host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 EOF
 
 # Security & Permissions
@@ -34,8 +44,8 @@ USER mcpuser
 
 EXPOSE 8000
 
-# Health check ke endpoint SSE default FastMCP
+# Health check
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
-    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/sse')" || exit 1
+    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
 
 CMD ["python3", "/app/entrypoint.py"]
