@@ -18,13 +18,14 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin/tradingview-mcp /usr/local/bin/tradingview-mcp
 COPY --from=builder /app /app
 
-# Entrypoint script dengan dukungan GET, POST, & Transport Security Fix
+# Clean Entrypoint script
 RUN cat << 'EOF' > /app/entrypoint.py
 import uvicorn
 import starlette.responses
 from starlette.routing import Route
 from tradingview_mcp.server import mcp
 
+# Disable strict transport/DNS host checks
 if hasattr(mcp, 'settings'):
     mcp.settings.transport_security = None
 if hasattr(mcp, '_settings'):
@@ -35,18 +36,12 @@ app = mcp.sse_app()
 async def health(req):
     return starlette.responses.JSONResponse({"status": "ok"})
 
-async def handle_post_fallback(req):
-    return starlette.responses.JSONResponse({
-        "jsonrpc": "2.0",
-        "error": {
-            "code": -32600,
-            "message": "Endpoint ini membutuhkan koneksi HTTP GET SSE. Untuk pesan JSON-RPC, gunakan URL session dari event SSE."
-        },
-        "id": None
-    }, status_code=200)
+async def root(req):
+    return starlette.responses.JSONResponse({"status": "ok", "mcp_endpoint": "/sse"})
 
+# Safely add supplementary routes without overriding /sse
 app.routes.append(Route("/health", endpoint=health, methods=["GET"]))
-app.routes.append(Route("/sse", endpoint=handle_post_fallback, methods=["POST"]))
+app.routes.append(Route("/", endpoint=root, methods=["GET"]))
 
 if __name__ == "__main__":
     uvicorn.run(
