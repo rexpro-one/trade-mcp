@@ -26,19 +26,28 @@ COPY --from=builder /usr/local/bin/tradingview-mcp /usr/local/bin/tradingview-mc
 # Copy app source
 COPY --from=builder /app /app
 
-# Create entrypoint script for Vertex AI compatibility (Streamable HTTP + /health)
+# Create custom entrypoint script with multi-route handling for Vertex AI
 RUN cat << 'EOF' > /app/entrypoint.py
 import uvicorn
 import starlette.responses
-from starlette.routing import Route
+from starlette.applications import Starlette
+from starlette.routing import Route, Mount
 from tradingview_mcp.server import mcp
 
-app = mcp.streamable_http_app()
+# Mengambil aplikasi streamable_http milik FastMCP
+mcp_subapp = mcp.streamable_http_app()
 
 async def health(req):
     return starlette.responses.JSONResponse({"status": "ok"})
 
-app.routes.append(Route("/health", endpoint=health, methods=["GET"]))
+# Buat wrapper Starlette utama
+app = Starlette(
+    routes=[
+        Route("/health", endpoint=health, methods=["GET"]),
+        Mount("/mcp", app=mcp_subapp),
+        Mount("/", app=mcp_subapp),
+    ]
+)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
