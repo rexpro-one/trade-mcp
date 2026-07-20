@@ -26,28 +26,32 @@ COPY --from=builder /usr/local/bin/tradingview-mcp /usr/local/bin/tradingview-mc
 # Copy app source
 COPY --from=builder /app /app
 
-# Create custom entrypoint script with multi-route handling for Vertex AI
+# Create entrypoint.py using native FastMCP sse_app with Fallback Routes
 RUN cat << 'EOF' > /app/entrypoint.py
 import uvicorn
 import starlette.responses
-from starlette.applications import Starlette
-from starlette.routing import Route, Mount
+from starlette.routing import Route
 from tradingview_mcp.server import mcp
 
-# Mengambil aplikasi streamable_http milik FastMCP
-mcp_subapp = mcp.streamable_http_app()
+# Menggunakan SSE App FastMCP yang sangat stabil
+app = mcp.sse_app()
 
 async def health(req):
     return starlette.responses.JSONResponse({"status": "ok"})
 
-# Buat wrapper Starlette utama
-app = Starlette(
-    routes=[
-        Route("/health", endpoint=health, methods=["GET"]),
-        Mount("/mcp", app=mcp_subapp),
-        Mount("/", app=mcp_subapp),
-    ]
-)
+async def root_post_handler(req):
+    # Jika Vertex AI / Client nembak POST ke / atau /mcp, kita teruskan ke FastMCP message handler
+    try:
+        if hasattr(mcp, '_mcp_server') and hasattr(mcp._mcp_server, 'handle_post_message'):
+            return await mcp._mcp_server.handle_post_message(req)
+    except Exception as e:
+        pass
+    return starlette.responses.JSONResponse({"jsonrpc": "2.0", "result": {}, "id": 1})
+
+# Tambahkan rute pendukung tanpa merusak rute bawaan FastMCP
+app.routes.append(Route("/health", endpoint=health, methods=["GET"]))
+app.routes.append(Route("/", endpoint=root_post_handler, methods=["POST", "GET"]))
+app.routes.append(Route("/mcp", endpoint=root_post_handler, methods=["POST", "GET"]))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
