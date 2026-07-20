@@ -1,11 +1,30 @@
-# Entrypoint script dengan dukungan GET & POST
+# ---- Stage 1: Build ----
+FROM python:3.11-slim AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/usr/local/bin" sh
+
+WORKDIR /app
+COPY . .
+RUN uv pip install --system .
+
+# ---- Stage 2: Runtime ----
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin/tradingview-mcp /usr/local/bin/tradingview-mcp
+COPY --from=builder /app /app
+
+# Entrypoint script dengan dukungan GET, POST, & Transport Security Fix
 RUN cat << 'EOF' > /app/entrypoint.py
 import uvicorn
 import starlette.responses
 from starlette.routing import Route
 from tradingview_mcp.server import mcp
 
-# Matikan proteksi strict host DNS jika ada
 if hasattr(mcp, 'settings'):
     mcp.settings.transport_security = None
 if hasattr(mcp, '_settings'):
@@ -16,7 +35,6 @@ app = mcp.sse_app()
 async def health(req):
     return starlette.responses.JSONResponse({"status": "ok"})
 
-# Handler fallback jika Vertex AI mengirim POST langsung
 async def handle_post_fallback(req):
     return starlette.responses.JSONResponse({
         "jsonrpc": "2.0",
@@ -39,3 +57,15 @@ if __name__ == "__main__":
         forwarded_allow_ips="*"
     )
 EOF
+
+# Security & Permissions
+RUN useradd -m mcpuser && chown -R mcpuser:mcpuser /app
+USER mcpuser
+
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
+    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+
+CMD ["python3", "/app/entrypoint.py"]
