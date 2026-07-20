@@ -18,24 +18,37 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin/tradingview-mcp /usr/local/bin/tradingview-mcp
 COPY --from=builder /app /app
 
-# Entrypoint script: Ambil app ASGI murni bawaan FastMCP
+# Entrypoint script dengan perbaikan Transport Security Host Header
 RUN cat << 'EOF' > /app/entrypoint.py
 import uvicorn
 import starlette.responses
 from starlette.routing import Route
 from tradingview_mcp.server import mcp
 
-# Mengambil aplikasi Starlette SSE native milik FastMCP
+# Matikan proteksi strict host DNS jika ada di FastMCP settings
+if hasattr(mcp, 'settings'):
+    mcp.settings.transport_security = None
+if hasattr(mcp, '_settings'):
+    mcp._settings.transport_security = None
+
+# Mengambil aplikasi SSE FastMCP
 app = mcp.sse_app()
 
 async def health(req):
     return starlette.responses.JSONResponse({"status": "ok"})
 
-# Tambahkan endpoint health untuk Docker / Easypanel
+# Tambahkan rute health check
 app.routes.append(Route("/health", endpoint=health, methods=["GET"]))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Jalankan Uvicorn dengan proxy_headers agar membaca Host dari Easypanel/Traefik
+    uvicorn.run(
+        app, 
+        host="0.0.0.0", 
+        port=8000, 
+        proxy_headers=True, 
+        forwarded_allow_ips="*"
+    )
 EOF
 
 # Security & Permissions
